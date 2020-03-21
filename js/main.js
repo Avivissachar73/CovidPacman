@@ -14,7 +14,7 @@ setPrototypes()
 
 const BOARD_SELECTOR = '#board';
 
-const WELCOME_MSG = 'Hello!, do you think you can collect all the foods in the market without being infected by any of the other costumers? Lets play!';
+const WELCOME_MSG = 'Hello! do you think you can collect all the foods in the market without being infected by any of the other costumers? Lets play!';
 // const WELCOME_MSG = 'Lets play Pacman!';
 var PAUSE_MSG = '';
 
@@ -70,7 +70,7 @@ function init(isStart) {
 function connectEvents() {
     EventManager.on('game-setted', (board, bestScore) => {
         renderBoard(board);
-        PAUSE_MSG = bestScore ? `Game paused. Best score: ${bestScore.name}: ${bestScore.score}` : 'Game paused';
+        PAUSE_MSG = bestScore ? `Game paused <br/> Best score: ${bestScore.name}: ${bestScore.score}` : 'Game paused';
         // reSizeBoard();
     });
     EventManager.on('object-moved', (fromPos, toPos, board) => {
@@ -84,13 +84,13 @@ function connectEvents() {
         console.log('game-over, isVictory:', isVictory, 'score:', score, 'isNewBest:', isNewHighScore);
         if (isVictory) {
             if (isNewHighScore) {
-                let playerName = await Prompt(`You broke the high score! You got ${score} points! save score?`, 'Your name');
+                let playerName = await Prompt(`You broke the high score! You got ${score} points! <br/> save score?`, 'Your name');
                 if (playerName) EventManager.emit('save-score', playerName)
             }
             else Alert(`You win! Score: ${score}`);
         }
         // else Alert(`Game over...  Score: ${score}`);
-        else Alert(`Game over... You been infected by a sick costumer.. Score: ${score}`);
+        else Alert(`Game over... <br/> You been infected by a sick costumer.. <br/> Score: ${score}`);
         gIsGameOver = true;
     });
     EventManager.on('score-update', score => {
