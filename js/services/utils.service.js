@@ -54,6 +54,7 @@ export function copy(obj) {
     var keys = Object.keys(obj);
     for (let key of keys) {
         if (!isNaN(+key)) key = +key;
+        if (copied[key] instanceof HTMLElement) continue;
         copied[key] = copy(copied[key]);
     }
     return copied;
@@ -150,14 +151,16 @@ export function setPrototypes() {
         return shuffled.join('');
     }
     String.prototype.multiReplace = function(searchValue, replaceValue) {
+        replaceValue += '';
         var str = this;
         var counter = 0;
         for (let i = 0; i < str.length; i++) {
-            if (str[i] === searchValue[counter]) counter++
+            if (str[i] === searchValue[counter]) counter++;
             else counter = 0;
             if (counter === searchValue.length) {
                 str = str.substring(0, i-counter+1)+replaceValue+str.substring(i+1);
                 counter = 0;
+                i -= (searchValue.length-replaceValue.length);
             }
         }
         return str;

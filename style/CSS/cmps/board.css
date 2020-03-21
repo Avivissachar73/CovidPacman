@@ -16,7 +16,7 @@
 
 .board-cell {
     background-color: antiquewhite;
-    font-size: 0.9em;
+    /* font-size: 0.9em; */
 }
 
 .board-cell span {

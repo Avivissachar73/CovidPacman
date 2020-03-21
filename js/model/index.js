@@ -2,7 +2,7 @@
 
 import EventManager from '../EventManager.js';
 
-import {createGameBoard, getIsborder, createEmptyCell, getIsEnemyInitPos} from './board.service.js';
+import {createGameBoard, createEmptyCell, getIsEnemyInitPos} from './board.service.js';
 import { getRandomInt } from '../services/utils.service.js';
 
 import {spreadCherry} from './cherry.service.js';

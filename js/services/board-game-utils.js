@@ -76,16 +76,17 @@ function setReSizeBoard(parentSelector, selector) {
     function reSizeBoard() {
         var elBoard = document.querySelector(parentSelector);
         var boardWidth = elBoard.offsetWidth;
-        let elBoardTable = elBoard.querySelector(selector);
-        let rowCoumt = elBoardTable.querySelector('tr').querySelectorAll('td').length;
-        let tdWidth = boardWidth / rowCoumt;
+        var elBoardTable = elBoard.querySelector(selector);
+        var rowCoumt = elBoardTable.querySelector('tr').querySelectorAll('td').length;
+        var tdWidth = boardWidth / rowCoumt;
+        var boardFontSize = tdWidth/1.55;
         elBoardTable.querySelectorAll('td').forEach(elTd => {
             elTd.style.width = tdWidth + 'px';
             elTd.style.height = tdWidth + 'px';
         })
         elBoardTable.style.width = boardWidth + 'px';
         elBoardTable.style.height = boardWidth + 'px';
-        elBoardTable.style['font-size'] = boardWidth/30 + 'px';
+        elBoardTable.style['font-size'] = boardFontSize + 'px';
     }
     reSizeBoard();
     window.addEventListener('resize', () => {
