@@ -6,9 +6,11 @@ const {Confirm, Alert, Prompt} = new A_Alert();
 
 import createBtnsController from './services/btn-controls.cmp.js';
 
-// import utils from './services/utils.service.js';
-
 import connectModel from './model/index.js';
+import boardGameUtils from './services/board-game-utils.js';
+
+import {setPrototypes} from './services/utils.service.js'
+setPrototypes()
 
 const BOARD_SELECTOR = '#board';
 
@@ -21,8 +23,8 @@ document.body.onload = async () => {
     setDomMethods();
     createBtnsController(handleKeyPress, undefined, 'main');
     init(false);
-    setReSizeBoard();
-    if (await Confirm('Lets play Packman!')) {
+    // setReSizeBoard();
+    if (await Confirm('Lets play Pacman!')) {
         init(true);
         gIsGameOver = false;
     }
@@ -61,7 +63,7 @@ function init(isStart) {
 function connectEvents() {
     EventManager.on('game-setted', (board) => {
         renderBoard(board);
-        reSizeBoard();
+        // reSizeBoard();
     });
     EventManager.on('object-moved', (fromPos, toPos, board) => {
         renderCellByPos(fromPos, board);
@@ -88,71 +90,32 @@ function connectEvents() {
 }
 
 function renderBoard(board) {
-    var htmlStr = '<table>';
-    for (let i = 0; i < board.length; i++) {
-        htmlStr += '<tr>';
-        for (let j = 0; j < board[i].length; j++) {
-            let cell = board[i][j];
-            htmlStr += `<td id="${getCellIdByPos({i,j})}" class="board-cell">
-                            ${getCellHtmlStr(cell)}
-                        </td>`
-        }
-        htmlStr += '</tr>';
-    }
-    htmlStr += '</table>';
-    document.querySelector(BOARD_SELECTOR).innerHTML = htmlStr;
-}
-
-
-function getCellIdByPos({i,j}) {
-    return `cell-${i}-${j}`;
+    boardGameUtils.renderBoard(board, getCellHtmlStr, BOARD_SELECTOR);
+    boardGameUtils.setReSizeBoard(BOARD_SELECTOR, 'table');
 }
 
 function renderCellByPos(pos, board) {
-    var cellId = getCellIdByPos(pos);
-    var value = getCellHtmlStr(board[pos.i][pos.j]);
-    document.querySelector(`#${cellId}`).innerHTML = value;
+    boardGameUtils.renderCellByPos(pos, board, getCellHtmlStr);
 }
 
 
 function getCellHtmlStr(cell) {
     const contentStr = (() => {
-        // return '';
-        if (cell.isEmpty) return '';
-        if (cell.type === 'border') return ``;
-        if (cell.type === 'player') return `😷`;
-        if (cell.subtype === 'supper-food') return `S`;
-        if (cell.subtype === 'cherry') return ``;
-        if (cell.type === 'food' && cell.type === 'reg') return ``;
-        if (cell.type === 'enemy') return `E`;
-        return '';
+        if (cell.isEmpty || cell.type === 'border') return ' ';
+        if (cell.type === 'player') return '🤠';
+        if (cell.type === 'enemy') return ['😷','🤒','🤕','🤢','🤮','🤧'].random();
+        if (cell.type === 'food' && cell.subtype === 'food') return ' ';
+        if (cell.subtype === 'supper-food') return ['☕','🥛','🍷','🍸','🍺','🍻','🥃','🥤'][0];
+        if (cell.subtype === 'cherry') return ['🥑','🍒','🍆','🍉','🍌','🍅','🥥','🥔','🥦','🥕','🌽','🥒','🍄','🍇','🍞','🥐','🥨','🍦','🍨','🍩','🍪','🍰','🍔','🍟','🍕','🌮','🥪','🍿','🍲','🥘','🍳','🥡','🍭','🍬','🍫','🥫'].random();
+        return ' ';
     })();
     const styleStr = (() => {
         var styleStr = '';
-        if (cell.type === 'enemy') styleStr = `background-color:${gIsSupperMode? '#b88ae8' : cell.color};`;
-        if (cell.type === 'player') styleStr = `background-color:#f3b8a2;`;
-        if (cell.type === 'food' && cell.subtype === 'reg') styleStr = `background-color:#a2f3ba;`;
-        if (cell.subtype === 'supper-food') styleStr = `background-color:#83e7dd;`;
-        if (cell.subtype === 'cherry') styleStr = `background-color:#000000;`;
+        if (cell.type === 'enemy') styleStr += ` background-color:${gIsSupperMode? '#b88ae8' : cell.color};`;
         return styleStr;
     })();
     const classListStr = (() => {
-        return `${cell.type || ''} ${(cell.type === 'player' || cell.type === 'enemy' || cell.subtype === 'supper-food')? 'content' : ''}`;
+        return `${cell.subtype || cell.type || ''}`;
     })();
     return `<span style="${styleStr}" class="${classListStr}">${contentStr}</span>`;
-}
-
-function setReSizeBoard() {
-    reSizeBoard();
-    window.addEventListener('resize', () => {
-        reSizeBoard();
-    });
-}
-function reSizeBoard() {
-    var elBoard = document.querySelector(BOARD_SELECTOR);
-    var boardWidth = elBoard.offsetWidth;
-    let elBoardTable = elBoard.querySelector('table');
-    elBoardTable.style.width = boardWidth + 'px';
-    elBoardTable.style.height = boardWidth + 'px';
-    elBoardTable.style['font-size'] = boardWidth/30 + 'px';
 }

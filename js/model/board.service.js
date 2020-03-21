@@ -111,7 +111,7 @@ function createRegFoodCell(pos) {
     return {
         initialPos: {...pos},
         type: 'food',
-        subtype: 'reg',
+        subtype: 'food',
         cellId: utils.getRandomId(),
         pos,
         score: 1
@@ -121,6 +121,9 @@ function createRegFoodCell(pos) {
 
 export function getIsborder(pos, boardHeight, boardWidth) {
     const {i,j} = pos;
+
+    if ((i === 10 && (j === boardWidth-1 || j === 0)) || 
+        (j === 10 && (i === boardHeight-1 || i === 0))) return false;
 
     if (i === 0 || j === 0 || i === boardHeight-1 || j === boardWidth-1) return true;
 

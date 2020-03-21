@@ -7,6 +7,7 @@ export default {
     storeToStorage,
     loadFromStorage,
     getRandomId,
+    getRandomInt,
     copy,
     getRandomColor
 }

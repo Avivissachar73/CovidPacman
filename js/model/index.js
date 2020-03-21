@@ -4,7 +4,8 @@ import EventManager from '../EventManager.js';
 
 import {createGameBoard, getIsborder, createEmptyCell, getIsEnemyInitPos} from './board.service.js';
 import { getRandomInt } from '../services/utils.service.js';
-import utils from '../services/utils.service.js';
+
+import {spreadCherry} from './cherry.service.js';
 
 export default function connectEvents() {
     EventManager.on('set-game', (isStartGame) => {
@@ -52,7 +53,7 @@ function startGame() {
     if (gState.isGameOver) return;
     gState.isGameOn = true;
     gState.enemiesInterval = setInterval(moveEnemies ,500);
-    gState.chrryInterval = setInterval(spreadCherry ,5000);
+    gState.chrryInterval = setInterval(() => spreadCherry(gState.board) ,5000);
 }
 
 function doGameOver(isVictory) {
@@ -89,6 +90,7 @@ function moveObj(obj, toPos) {
     if (obj.isDead) return;
     if (!gState.isGameOn) return;
     var board = gState.board;
+    fixToPos(toPos, board)
     var toPosObj = board[toPos.i][toPos.j];
     if (toPosObj.type === 'border') return;
 
@@ -175,30 +177,11 @@ function checkVictory() {
 }
 
 
-function getAllEmptyPoss() {
-    var {board} = gState;
-    var empties = [];
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board[i].length; j++) {
-            if (board[i][j].isEmpty && !getIsEnemyInitPos({i,j})) empties.push({i,j});
-        }
-    }
-    return empties;
-}
+function fixToPos(pos, board) {
+    const {i, j} = pos;
+    if (i > board.length-1) pos.i = 0;
+    else if (i < 0) pos.i = board.length-1;
 
-
-function spreadCherry() {
-    var board = gState.board;
-    var emptyPoss = getAllEmptyPoss();
-    if (!emptyPoss.length) return;
-    let randomPos = emptyPoss[getRandomInt(0, emptyPoss.length-1)];
-    var cherry = board[randomPos.i][randomPos.j] = {
-        initialPos: randomPos,
-        type: 'food',
-        subtype: 'cherry',
-        cellId: utils.getRandomId(),
-        pos: randomPos,
-        score: 15
-    }
-    EventManager.emit('obj-added', randomPos, board);
+    if (j > board[0].length-1) pos.j = 0;
+    else if (j < 0) pos.j = board[0].length-1;
 }

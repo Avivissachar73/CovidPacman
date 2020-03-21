@@ -27,11 +27,11 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
         cbFunc({key});
         state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
     }; const clearArrowInterval = () => {clearInterval(state.arrowsInterval);state.arrowsInterval = null};
-    const pressActionBtn = key => {
-        if (state.actionInterval) return;
-        sbFunk({key});
-        state.actionInterval = setInterval(() => cbFunc({key}), speed);
-    }; const clearActionInterval = () => {clearInterval(state.actionInterval);state.actionInterval = null};
+    // const pressActionBtn = key => {
+    //     if (state.actionInterval) return;
+    //     sbFunk({key});
+    //     state.actionInterval = setInterval(() => cbFunc({key}), speed);
+    // }; const clearActionInterval = () => {clearInterval(state.actionInterval);state.actionInterval = null};
 
     let el = document.createElement('div');
     el.innerHTML = template.trim();
