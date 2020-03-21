@@ -13,6 +13,7 @@ import connectModel from './model/index.js';
 const BOARD_SELECTOR = '#board';
 
 var gIsSupperMode = false;
+var gIsGameOver = true;
 
 document.body.onload = async () => {
     connectModel();
@@ -21,14 +22,28 @@ document.body.onload = async () => {
     createBtnsController(handleKeyPress, undefined, 'main');
     init(false);
     setReSizeBoard();
-    if (await Confirm('Lets play Packman!')) init(true);
+    if (await Confirm('Lets play Packman!')) {
+        init(true);
+        gIsGameOver = false;
+    }
     
 }
 
 function setDomMethods() {
-    document.querySelector('.reset-btn').onclick = () => init(true);
+    document.querySelector('.reset-btn').onclick = () => {
+        init(true);
+        gIsGameOver = false;
+    }
+    document.querySelector('.pause-btn').onclick = pauseGame;
     document.body.onkeydown = handleKeyPress;
     // document.querySelector(BOARD_SELECTOR).onkeydown = handleKeyPress;
+}
+
+async function pauseGame() {
+    if (gIsGameOver) return;
+    EventManager.emit('pause-game');
+    await Alert('Game paused');
+    EventManager.emit('resurm-game');
 }
 
 function handleKeyPress(event) {
@@ -58,6 +73,7 @@ function connectEvents() {
     EventManager.on('game-over', isVictory => {
         if (isVictory) Alert(`You win!`);
         else Alert(`Game over...`);
+        gIsGameOver = true;
     });
     EventManager.on('score-update', score => {
         document.querySelector('.score-span').innerText = score;

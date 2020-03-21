@@ -16,6 +16,8 @@ export default function connectEvents() {
         var {player} = gState;
         moveObj(player, {i:player.pos.i+diffI, j:player.pos.j+diffJ});
     });
+    EventManager.on('pause-game', pauseGame);
+    EventManager.on('resurm-game', startGame);
 }
 
 var gState;
@@ -36,6 +38,7 @@ function setState() {
         player: boardRes.player,
         enemiesInterval: null,
         isGameOn: false,
+        isGameOver: false,
         isSuperMode: false,
         deadEnemies: [],
         foodCount: boardRes.foodCount,
@@ -46,22 +49,44 @@ function setState() {
 }
 
 function startGame() {
+    if (gState.isGameOver) return;
     gState.isGameOn = true;
     gState.enemiesInterval = setInterval(moveEnemies ,500);
     gState.chrryInterval = setInterval(spreadCherry ,5000);
 }
 
+function doGameOver(isVictory) {
+    pauseGame();
+    gState.isGameOver = true;
+    EventManager.emit('game-over', isVictory);
+}
+
+function pauseGame() {
+    if (!gState.isGameOn) return;
+    gState.isGameOn = false;
+    clearIntervals();
+}
+
+function clearIntervals() {
+    if (!gState) return;
+    clearInterval(gState.enemiesInterval);
+    clearInterval(gState.chrryInterval);
+}
+
+
 function moveEnemies() {
-    var {enemies, deadEnemies} = gState;
+    var {enemies} = gState;
     for (let enemy of enemies) {
         const posDiffs = {i:getRandomInt(-1,1), j:getRandomInt(-1,1)};
         const newPos = {i: enemy.pos.i+posDiffs.i, j:enemy.pos.j+posDiffs.j};
-        if ([...enemies, ...deadEnemies].find(curr => curr.initialPos.i === newPos.i && curr.initialPos.j === newPos.j)) continue;
+        if (getIsEnemyInitPos(newPos)) continue;
         moveObj(enemy, newPos);
     }
 }
 
 function moveObj(obj, toPos) {
+    if (getIsEnemyInitPos(toPos)) return;
+    if (obj.isDead) return;
     if (!gState.isGameOn) return;
     var board = gState.board;
     var toPosObj = board[toPos.i][toPos.j];
@@ -69,25 +94,21 @@ function moveObj(obj, toPos) {
 
     if (obj.type === 'player' && toPosObj.type === 'enemy' ||
         obj.type === 'enemy' && toPosObj.type === 'player') {
-            if (gState.isSuperMode) {
-                let enemy = obj.type === 'enemy' ? obj : toPosObj;
-                let {enemies, deadEnemies} = gState;
-                updateScore(enemy.score);
-                if (enemy.content) {
-                    console.log('yes it does');
-                    let content = enemy.content;
-                    updateScore(content.score || 0);
-                    if (content.type === 'food' || content.type === 'super-food') gState.eatCount++;
-                    enemy.content = null;
-                }
-                board[enemy.pos.i][enemy.pos.j] = createEmptyCell(enemy.pos);
-                
-                let enemyIdx = enemies.findIndex(curr => curr.cellId === toPosObj.cellId);
-                deadEnemies.push(...enemies.splice(enemyIdx, 1));
-                console.log('ateEnemy:', enemies, deadEnemies);
-            }    
-            else return doGameOver();
-        }
+        if (gState.isSuperMode) {
+            let enemy = obj.type === 'enemy' ? obj : toPosObj;
+            enemy.isDead = true;
+            let {enemies, deadEnemies} = gState;
+            updateScore(enemy.score);
+            if (enemy.content) {
+                let content = enemy.content;
+                updateScore(content.score || 0);
+                if (content.type === 'food' && content.subtype !== 'cherry') gState.eatCount++;
+                enemy.content = null;
+            }
+            board[enemy.pos.i][enemy.pos.j] = createEmptyCell(enemy.pos);
+        }    
+        else return doGameOver();
+    }
     else if (obj.type === 'player' && toPosObj.type === 'food') {
         if (toPosObj.subtype === 'supper-food') {
             if (gState.isSuperMode) return;
@@ -97,7 +118,7 @@ function moveObj(obj, toPos) {
         updateScore(toPosObj.score);
         board[toPos.i][toPos.j] = createEmptyCell(toPos);
     }
-    else if (obj.type === 'enemy' && toPosObj.type === 'food' && toPosObj.subtype !== 'reg' ||
+    else if (obj.type === 'enemy' && toPosObj.type === 'food' && toPosObj.subtype === 'supper-food' ||
             obj.type === 'enemy' && toPosObj.type === 'enemy') return
 
     else if (obj.type === 'enemy' && toPosObj.type === 'food' && !obj.content) {
@@ -108,15 +129,7 @@ function moveObj(obj, toPos) {
 
     var prevPos = {...obj.pos};
     
-    // if (obj.content) {
-        //     console.log(obj.content);
-        //     console.log(prevPos);
-        //     throw new Error();
-        // }
-    // board[toPos.i][toPos.j].pos = prevPos;
-    // let temp = board[prevPos.i][prevPos.j];
     if (obj.content && obj.content.pos.i === prevPos.i && obj.content.pos.j === prevPos.j) {
-        // console.log(obj.content, prevPos);
         board[prevPos.i][prevPos.j] = obj.content;
         if (toPosObj.type === 'food') obj.content = board[toPos.i][toPos.j];
         else obj.content = null;
@@ -127,23 +140,9 @@ function moveObj(obj, toPos) {
     board[toPos.i][toPos.j] = obj;
     obj.pos = toPos;
 
-    // obj.content = null
     EventManager.emit('object-moved', prevPos, toPos, board);
 
     checkVictory();
-}
-
-
-function doGameOver(isVictory) {
-    gState.isGameOn = false;
-    clearIntervals();
-    EventManager.emit('game-over', isVictory);
-}
-
-function clearIntervals() {
-    if (!gState) return;
-    clearInterval(gState.enemiesInterval);
-    clearInterval(gState.chrryInterval);
 }
 
 function updateScore(diff) {
@@ -156,15 +155,12 @@ function setSupperMode() {
     gState.isSuperMode = true;
     setTimeout(() => {
         gState.isSuperMode = false;
-        let {enemies, deadEnemies, board} = gState;
-        for (let enemy of deadEnemies) {
+        let {enemies, board} = gState;
+        for (let enemy of enemies) {
+            if (!enemy.isDead) continue;
+            enemy.isDead = false;
             enemy.pos = {...enemy.initialPos};
-            enemies.push(enemy);
-            let idx = deadEnemies.findIndex(curr => curr.cellId === enemy.cellId);
-            deadEnemies.splice(idx, 1);
-
             board[enemy.initialPos.i][enemy.initialPos.j] = enemy;
-
             EventManager.emit('obj-added', enemy.pos, board);
         }
     }, supperDuration);
@@ -204,6 +200,5 @@ function spreadCherry() {
         pos: randomPos,
         score: 15
     }
-    console.log('cherry was created', cherry)
     EventManager.emit('obj-added', randomPos, board);
 }
