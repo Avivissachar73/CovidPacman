@@ -2,8 +2,9 @@
 
 import EventManager from '../EventManager.js';
 
-import {createGameBoard, getIsborder, createEmptyCell} from './board.service.js';
+import {createGameBoard, getIsborder, createEmptyCell, getIsEnemyInitPos} from './board.service.js';
 import { getRandomInt } from '../services/utils.service.js';
+import utils from '../services/utils.service.js';
 
 export default function connectEvents() {
     EventManager.on('set-game', (isStartGame) => {
@@ -38,8 +39,8 @@ function setState() {
         isSuperMode: false,
         deadEnemies: [],
         foodCount: boardRes.foodCount,
-        eatCount: 0
-
+        eatCount: 0,
+        chrryInterval: null
     }
     window.gState = gState;
 }
@@ -47,6 +48,7 @@ function setState() {
 function startGame() {
     gState.isGameOn = true;
     gState.enemiesInterval = setInterval(moveEnemies ,500);
+    gState.chrryInterval = setInterval(spreadCherry ,5000);
 }
 
 function moveEnemies() {
@@ -86,20 +88,16 @@ function moveObj(obj, toPos) {
             }    
             else return doGameOver();
         }
-        
-    else if (obj.type === 'player' && toPosObj.type === 'supper-food') {
-        if (gState.isSuperMode) return;
-        gState.eatCount++;
-        updateScore(toPosObj.score);
-        board[toPos.i][toPos.j] = createEmptyCell(toPos);
-        setSupperMode()
-    }
     else if (obj.type === 'player' && toPosObj.type === 'food') {
-        gState.eatCount++;
+        if (toPosObj.subtype === 'supper-food') {
+            if (gState.isSuperMode) return;
+            setSupperMode();
+        }
+        if (toPosObj.subtype !== 'cherry') gState.eatCount++;
         updateScore(toPosObj.score);
         board[toPos.i][toPos.j] = createEmptyCell(toPos);
     }
-    else if (obj.type === 'enemy' && toPosObj.type === 'supper-food' ||
+    else if (obj.type === 'enemy' && toPosObj.type === 'food' && toPosObj.subtype !== 'reg' ||
             obj.type === 'enemy' && toPosObj.type === 'enemy') return
 
     else if (obj.type === 'enemy' && toPosObj.type === 'food' && !obj.content) {
@@ -145,6 +143,7 @@ function doGameOver(isVictory) {
 function clearIntervals() {
     if (!gState) return;
     clearInterval(gState.enemiesInterval);
+    clearInterval(gState.chrryInterval);
 }
 
 function updateScore(diff) {
@@ -177,4 +176,34 @@ function checkVictory() {
     if (gState.foodCount === gState.eatCount) {
         doGameOver(true);
     }
+}
+
+
+function getAllEmptyPoss() {
+    var {board} = gState;
+    var empties = [];
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            if (board[i][j].isEmpty && !getIsEnemyInitPos({i,j})) empties.push({i,j});
+        }
+    }
+    return empties;
+}
+
+
+function spreadCherry() {
+    var board = gState.board;
+    var emptyPoss = getAllEmptyPoss();
+    if (!emptyPoss.length) return;
+    let randomPos = emptyPoss[getRandomInt(0, emptyPoss.length-1)];
+    var cherry = board[randomPos.i][randomPos.j] = {
+        initialPos: randomPos,
+        type: 'food',
+        subtype: 'cherry',
+        cellId: utils.getRandomId(),
+        pos: randomPos,
+        score: 15
+    }
+    console.log('cherry was created', cherry)
+    EventManager.emit('obj-added', randomPos, board);
 }

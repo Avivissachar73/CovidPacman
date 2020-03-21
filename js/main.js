@@ -14,13 +14,15 @@ const BOARD_SELECTOR = '#board';
 
 var gIsSupperMode = false;
 
-document.body.onload = () => {
+document.body.onload = async () => {
     connectModel();
     connectEvents();
     setDomMethods();
     createBtnsController(handleKeyPress, undefined, 'main');
     init(false);
     setReSizeBoard();
+    if (await Confirm('Lets play Packman!')) init(true);
+    
 }
 
 function setDomMethods() {
@@ -103,8 +105,9 @@ function getCellHtmlStr(cell) {
         if (cell.isEmpty) return '';
         if (cell.type === 'border') return ``;
         if (cell.type === 'player') return `😷`;
-        if (cell.type === 'supper-food') return `S`;
-        if (cell.type === 'food') return ``;
+        if (cell.subtype === 'supper-food') return `S`;
+        if (cell.subtype === 'cherry') return ``;
+        if (cell.type === 'food' && cell.type === 'reg') return ``;
         if (cell.type === 'enemy') return `E`;
         return '';
     })();
@@ -112,12 +115,13 @@ function getCellHtmlStr(cell) {
         var styleStr = '';
         if (cell.type === 'enemy') styleStr = `background-color:${gIsSupperMode? '#b88ae8' : cell.color};`;
         if (cell.type === 'player') styleStr = `background-color:#f3b8a2;`;
-        if (cell.type === 'food') styleStr = `background-color:#a2f3ba;`;
-        if (cell.type === 'supper-food') styleStr = `background-color:#83e7dd;`;
+        if (cell.type === 'food' && cell.subtype === 'reg') styleStr = `background-color:#a2f3ba;`;
+        if (cell.subtype === 'supper-food') styleStr = `background-color:#83e7dd;`;
+        if (cell.subtype === 'cherry') styleStr = `background-color:#000000;`;
         return styleStr;
     })();
     const classListStr = (() => {
-        return `${cell.type || ''} ${(cell.type === 'player' || cell.type === 'enemy' || cell.type === 'supper-food')? 'content' : ''}`;
+        return `${cell.type || ''} ${(cell.type === 'player' || cell.type === 'enemy' || cell.subtype === 'supper-food')? 'content' : ''}`;
     })();
     return `<span style="${styleStr}" class="${classListStr}">${contentStr}</span>`;
 }

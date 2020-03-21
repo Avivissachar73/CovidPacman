@@ -39,7 +39,7 @@ function createInitializedCell(pos, boardHeight, boardWidth, res) {
         return player;
     }
 
-    if ((i === 10 || i === 12) && (j === 9 || j === 11)) {
+    if (getIsEnemyInitPos(pos)) {
         let enemy = createEnemyCell(pos);
         res.enemies.push(enemy);
         return enemy;
@@ -99,7 +99,8 @@ function creasteBoardCell(pos) {
 function createSupperFoodCell(pos) {
     return {
         initialPos: {...pos},
-        type: 'supper-food',
+        type: 'food',
+        subtype: 'supper-food',
         cellId: utils.getRandomId(),
         pos,
         score: 20
@@ -110,6 +111,7 @@ function createRegFoodCell(pos) {
     return {
         initialPos: {...pos},
         type: 'food',
+        subtype: 'reg',
         cellId: utils.getRandomId(),
         pos,
         score: 1
@@ -129,4 +131,9 @@ export function getIsborder(pos, boardHeight, boardWidth) {
     }
 
     return false
+}
+
+
+export function getIsEnemyInitPos({i,j}) {
+ return (i === 10 || i === 12) && (j === 9 || j === 11);
 }
