@@ -25,10 +25,12 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     const pressArowBtn = key => {
         console.log(key);
         if (state.arrowsInterval) return;
+        cbFunc({key});
         state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
     }; const clearArrowInterval = () => {clearInterval(state.arrowsInterval);state.arrowsInterval = null};
     const pressActionBtn = key => {
         if (state.actionInterval) return;
+        sbFunk({key});
         state.actionInterval = setInterval(() => cbFunc({key}), speed);
     }; const clearActionInterval = () => {clearInterval(state.actionInterval);state.actionInterval = null};
 
