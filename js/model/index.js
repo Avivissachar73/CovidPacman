@@ -7,10 +7,12 @@ import { getRandomInt } from '../services/utils.service.js';
 
 import {spreadCherry} from './cherry.service.js';
 
+import {loadBestScore, saveScore, checkNewHighScore} from './score.service.js';
+
 export default function connectEvents() {
-    EventManager.on('set-game', (isStartGame) => {
-        init(isStartGame);
-        EventManager.emit('game-setted', gState.board);
+    EventManager.on('set-game', async (isStartGame) => {
+        await init(isStartGame);
+        EventManager.emit('game-setted', gState.board, gState.bestScore);
     });
     EventManager.on('move-player', posDiffs => {
         const {i : diffI, j : diffJ} = posDiffs;
@@ -19,19 +21,23 @@ export default function connectEvents() {
     });
     EventManager.on('pause-game', pauseGame);
     EventManager.on('resurm-game', startGame);
+    EventManager.on('save-score', name => {
+        saveScore({name, score: gState.score});
+    })
 }
 
 var gState;
 
-function init(isStartGame) {
+async function init(isStartGame) {
     clearIntervals();
-    setState();
+    await setState();
     updateScore(0);
     if (isStartGame) startGame();
 }
 
-function setState() {
-    var boardRes = createGameBoard()
+async function setState() {
+    var boardRes = createGameBoard();
+    var bestScore = await loadBestScore();
     gState = {
         board: boardRes.board,
         score: 0,
@@ -44,7 +50,8 @@ function setState() {
         deadEnemies: [],
         foodCount: boardRes.foodCount,
         eatCount: 0,
-        chrryInterval: null
+        chrryInterval: null,
+        bestScore
     }
     window.gState = gState;
 }
@@ -55,37 +62,36 @@ function startGame() {
     gState.enemiesInterval = setInterval(moveEnemies ,500);
     gState.chrryInterval = setInterval(() => spreadCherry(gState.board) ,5000);
 }
-
-function doGameOver(isVictory) {
-    pauseGame();
-    gState.isGameOver = true;
-    EventManager.emit('game-over', isVictory);
-}
-
 function pauseGame() {
     if (!gState.isGameOn) return;
     gState.isGameOn = false;
     clearIntervals();
 }
-
 function clearIntervals() {
     if (!gState) return;
     clearInterval(gState.enemiesInterval);
     clearInterval(gState.chrryInterval);
 }
-
-
-function moveEnemies() {
-    var {enemies} = gState;
-    for (let enemy of enemies) {
-        const posDiffs = {i:getRandomInt(-1,1), j:getRandomInt(-1,1)};
-        const newPos = {i: enemy.pos.i+posDiffs.i, j:enemy.pos.j+posDiffs.j};
-        if (getIsEnemyInitPos(newPos)) continue;
-        moveObj(enemy, newPos);
+async function doGameOver(isVictory = false) {
+    pauseGame();
+    var isNewHighScore = false
+    if (isVictory) {
+        isNewHighScore = await checkNewHighScore(gState.score);
     }
+    gState.isGameOver = true;
+    EventManager.emit('game-over', isVictory, gState.score, isNewHighScore);
 }
 
+
 function moveObj(obj, toPos) {
+    function fixToPos(pos, board) {
+        const {i, j} = pos;
+        if (i > board.length-1) pos.i = 0;
+        else if (i < 0) pos.i = board.length-1;
+
+        if (j > board[0].length-1) pos.j = 0;
+        else if (j < 0) pos.j = board[0].length-1;
+    }
     if (getIsEnemyInitPos(toPos)) return;
     if (obj.isDead) return;
     if (!gState.isGameOn) return;
@@ -147,6 +153,16 @@ function moveObj(obj, toPos) {
     checkVictory();
 }
 
+function moveEnemies() {
+    var {enemies} = gState;
+    for (let enemy of enemies) {
+        const posDiffs = {i:getRandomInt(-1,1), j:getRandomInt(-1,1)};
+        const newPos = {i: enemy.pos.i+posDiffs.i, j:enemy.pos.j+posDiffs.j};
+        if (getIsEnemyInitPos(newPos)) continue;
+        moveObj(enemy, newPos);
+    }
+}
+
 function updateScore(diff) {
     gState.score += diff;
     EventManager.emit('score-update', gState.score);
@@ -154,8 +170,7 @@ function updateScore(diff) {
 
 function setSupperMode() {
     const supperDuration = 5000;
-    gState.isSuperMode = true;
-    setTimeout(() => {
+    const reviveEnemies = () => {
         gState.isSuperMode = false;
         let {enemies, board} = gState;
         for (let enemy of enemies) {
@@ -165,7 +180,9 @@ function setSupperMode() {
             board[enemy.initialPos.i][enemy.initialPos.j] = enemy;
             EventManager.emit('obj-added', enemy.pos, board);
         }
-    }, supperDuration);
+    }
+    gState.isSuperMode = true;
+    setTimeout(reviveEnemies, supperDuration);
     EventManager.emit('supper-mode', supperDuration);
 }
 
@@ -176,12 +193,3 @@ function checkVictory() {
     }
 }
 
-
-function fixToPos(pos, board) {
-    const {i, j} = pos;
-    if (i > board.length-1) pos.i = 0;
-    else if (i < 0) pos.i = board.length-1;
-
-    if (j > board[0].length-1) pos.j = 0;
-    else if (j < 0) pos.j = board[0].length-1;
-}

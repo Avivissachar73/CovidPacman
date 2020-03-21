@@ -16,6 +16,7 @@ const BOARD_SELECTOR = '#board';
 
 const WELCOME_MSG = 'Hello!, do you think you can collect all the foods in the market without being infected by any of the other costumers? Lets play!';
 // const WELCOME_MSG = 'Lets play Pacman!';
+var PAUSE_MSG = '';
 
 var gIsSupperMode = false;
 var gIsGameOver = true;
@@ -47,12 +48,15 @@ function setDomMethods() {
 async function pauseGame() {
     if (gIsGameOver) return;
     EventManager.emit('pause-game');
-    await Alert('Game paused');
+    await Alert(PAUSE_MSG);
     EventManager.emit('resurm-game');
 }
 
 function handleKeyPress(event) {
-    if (event.preventDefault) event.preventDefault();
+    const key = event.key;
+    if (event.preventDefault && (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'ArrowUp' || key === 'ArrowDown')) {
+        event.preventDefault();
+    }
     if (event.key === 'ArrowLeft') EventManager.emit('move-player', {i:0,j:-1});
     if (event.key === 'ArrowRight') EventManager.emit('move-player', {i:0,j:1});
     if (event.key === 'ArrowUp') EventManager.emit('move-player', {i:-1,j:0});
@@ -64,8 +68,9 @@ function init(isStart) {
 }
 
 function connectEvents() {
-    EventManager.on('game-setted', (board) => {
+    EventManager.on('game-setted', (board, bestScore) => {
         renderBoard(board);
+        PAUSE_MSG = bestScore ? `Game paused. Best score: ${bestScore.name}: ${bestScore.score}` : 'Game paused';
         // reSizeBoard();
     });
     EventManager.on('object-moved', (fromPos, toPos, board) => {
@@ -75,10 +80,17 @@ function connectEvents() {
     EventManager.on('player-eaten', (pos, board) => {
         renderCellByPos(pos, board);
     });
-    EventManager.on('game-over', isVictory => {
-        if (isVictory) Alert(`You win!`);
-        // else Alert(`Game over...`);
-        else Alert(`Game over... You been infected by a sick costumer..`);
+    EventManager.on('game-over', async (isVictory, score, isNewHighScore) => {
+        console.log('game-over, isVictory:', isVictory, 'score:', score, 'isNewBest:', isNewHighScore);
+        if (isVictory) {
+            if (isNewHighScore) {
+                let playerName = await Prompt(`You broke the high score! You got ${score} points! save score?`, 'Your name');
+                if (playerName) EventManager.emit('save-score', playerName)
+            }
+            else Alert(`You win! Score: ${score}`);
+        }
+        // else Alert(`Game over...  Score: ${score}`);
+        else Alert(`Game over... You been infected by a sick costumer.. Score: ${score}`);
         gIsGameOver = true;
     });
     EventManager.on('score-update', score => {
