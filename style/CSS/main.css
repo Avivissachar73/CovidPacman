@@ -1,0 +1,10 @@
+/* BASE */
+@import './base.css';
+@import './helpers.css';
+@import './layout.css';
+
+
+/* CMPs */
+
+@import './cmps/board.css';
+@import './cmps/game-info.css';

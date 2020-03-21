@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style/CSS/main.css">
+    <title>Packman</title>
+</head>
+<body>
+    <header class="app-header flex align-center justify-center">
+        <h1 class="text-center">Packman</h1>
+    </header>
+
+    <main class="main-content game-container flex column align-center">
+            <section class="game-info width-all flex align-center space-around wrap">
+                <button class="reset-btn">Restart</button>
+                <h3>Score: <span class="score-span">0</span></h3>
+            </section>
+    
+            <div id="board" class="board-container"></div>
+    </main>
+
+    <footer class="app-footer flex align-center justify-center">
+        <h6 class="text-center">Aviv Issachar</h6>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
