@@ -14,6 +14,9 @@ setPrototypes()
 
 const BOARD_SELECTOR = '#board';
 
+const WELCOME_MSG = 'Hello!, do you think you can collect all the foods in the market without being infected by any of the other costumers? Lets play!';
+// const WELCOME_MSG = 'Lets play Pacman!';
+
 var gIsSupperMode = false;
 var gIsGameOver = true;
 
@@ -24,7 +27,7 @@ document.body.onload = async () => {
     createBtnsController(handleKeyPress, undefined, 'main');
     init(false);
     // setReSizeBoard();
-    if (await Confirm('Lets play Pacman!')) {
+    if (await Confirm(WELCOME_MSG)) {
         init(true);
         gIsGameOver = false;
     }
@@ -74,7 +77,8 @@ function connectEvents() {
     });
     EventManager.on('game-over', isVictory => {
         if (isVictory) Alert(`You win!`);
-        else Alert(`Game over...`);
+        // else Alert(`Game over...`);
+        else Alert(`Game over... You been infected by a sick costumer..`);
         gIsGameOver = true;
     });
     EventManager.on('score-update', score => {
