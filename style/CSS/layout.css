@@ -7,5 +7,14 @@
 
 .main-content {
     min-height: 80vh;
-    padding: 10px;
+    padding-top: 10px;
+    /* padding: 10px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+@media (min-width: 500px) {
+    .main-content {
+        justify-content: space-around;
+    }
 }

@@ -55,7 +55,8 @@ function _getDefaultStyle() {
                 .mobile-controllers {
                     background-color: #a49a9a4a;
                     padding: 10px;
-                    position: fixed;
+                    margin-top: 5px;
+                    /* position: fixed; */
                     z-index: 15;
                     bottom: 0;
                     width: 100%;
@@ -107,6 +108,12 @@ function _getDefaultStyle() {
                 }
                 .mobile-controllers .right-btn {
                     grid-area: 2/3/2/3;
+                }
+                
+                @media (min-width: 500px) {
+                    .mobile-controllers {
+                        display: none;
+                    }
                 }
             </style>
         `
