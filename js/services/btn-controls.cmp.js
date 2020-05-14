@@ -28,6 +28,7 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
         if (state.arrowsInterval) return;
         cbFunc({key});
         state.arrowsTimeOut = setTimeout(() => {
+            if (!state.arrowsTimeOut) return;
             state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
             state.arrowsTimeOut = null;
         }, 250);
