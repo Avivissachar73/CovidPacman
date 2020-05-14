@@ -31,11 +31,12 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
             if (!state.arrowsTimeOut) return;
             state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
             state.arrowsTimeOut = null;
-        }, 250);
+        }, 1000);
     }; const clearArrowInterval = () => {
         if (state.arrowsTimeOut) {
             clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
-        } else if (state.arrowsInterval) {
+        }
+        if (state.arrowsInterval) {
             clearInterval(state.arrowsInterval);state.arrowsInterval = null;
         }
     }
