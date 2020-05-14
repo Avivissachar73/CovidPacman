@@ -20,13 +20,24 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     }.template;
     const state = {
         arrowsInterval: null,
-        actionInterval: null
+        arrowsTimeOut: null,
+        actionInterval: null,
+        actionTimeOut: null
     }
     const pressArowBtn = key => {
         if (state.arrowsInterval) return;
         cbFunc({key});
-        state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
-    }; const clearArrowInterval = () => {clearInterval(state.arrowsInterval);state.arrowsInterval = null};
+        state.arrowsTimeOut = setTimeout(() => {
+            state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
+            state.arrowsTimeOut = null;
+        }, 250);
+    }; const clearArrowInterval = () => {
+        if (state.arrowsTimeOut) {
+            clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
+        } else if (state.arrowsInterval) {
+            clearInterval(state.arrowsInterval);state.arrowsInterval = null;
+        }
+    }
     // const pressActionBtn = key => {
     //     if (state.actionInterval) return;
     //     sbFunk({key});
@@ -109,7 +120,7 @@ function _getDefaultStyle() {
                 .mobile-controllers .right-btn {
                     grid-area: 2/3/2/3;
                 }
-                
+
                 @media (min-width: 500px) {
                     .mobile-controllers {
                         display: none;
