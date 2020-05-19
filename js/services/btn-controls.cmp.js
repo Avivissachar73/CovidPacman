@@ -21,22 +21,24 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     const state = {
         arrowsInterval: null,
         arrowsTimeOut: null,
+
         actionInterval: null,
-        actionTimeOut: null
     }
     const pressArowBtn = key => {
         if (state.arrowsInterval) return;
         cbFunc({key});
         state.arrowsTimeOut = setTimeout(() => {
-            if (!state.arrowsTimeOut) return;
-            state.arrowsInterval = setInterval(() => cbFunc({key}), speed);
+            state.arrowsInterval = setInterval(() => {
+                if (!state.arrowsInterval && state.arrowsInterval !== 0 ) return;
+                cbFunc({key});
+            }, speed);
             state.arrowsTimeOut = null;
-        }, 1000);
+        }, 750);
     }; const clearArrowInterval = () => {
-        if (state.arrowsTimeOut) {
+        if (state.arrowsTimeOut || state.arrowsTimeOut === 0) {
             clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
         }
-        if (state.arrowsInterval) {
+        if (state.arrowsInterval || state.arrowsInterval === 0) {
             clearInterval(state.arrowsInterval);state.arrowsInterval = null;
         }
     }
