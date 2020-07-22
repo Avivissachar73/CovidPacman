@@ -5,7 +5,7 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     const template = {
         template: `
             <div class="mobile-controllers">
-                ${styleTemplate}
+                ${styleTemplate || ''}
                 <div class="arrow-btns">
                     <button value="ArrowUp" class="arrow-btn up-btn">U</button>
                     <button value="ArrowDown"class="arrow-btn down-btn">D</button>
@@ -22,25 +22,25 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
         arrowsInterval: null,
         arrowsTimeOut: null,
 
-        actionInterval: null,
+        // actionInterval: null,
     }
     const pressArowBtn = key => {
         if (state.arrowsInterval) return;
         cbFunc({key});
         state.arrowsTimeOut = setTimeout(() => {
             state.arrowsInterval = setInterval(() => {
-                if (!state.arrowsInterval && state.arrowsInterval !== 0 ) return;
+                // if (!state.arrowsInterval && state.arrowsInterval !== 0 ) return;
                 cbFunc({key});
             }, speed);
             state.arrowsTimeOut = null;
-        }, 750);
+        }, speed*7.5);
     }; const clearArrowInterval = () => {
-        if (state.arrowsTimeOut || state.arrowsTimeOut === 0) {
-            clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
-        }
-        if (state.arrowsInterval || state.arrowsInterval === 0) {
-            clearInterval(state.arrowsInterval);state.arrowsInterval = null;
-        }
+        clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
+        clearInterval(state.arrowsInterval);state.arrowsInterval = null;
+        // if (state.arrowsTimeOut || state.arrowsTimeOut === 0) {
+        // }
+        // if (state.arrowsInterval || state.arrowsInterval === 0) {
+        // }
     }
     // const pressActionBtn = key => {
     //     if (state.actionInterval) return;
