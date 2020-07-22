@@ -59,10 +59,10 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     el = el.firstChild;
     
     el.querySelectorAll('.arrow-btn').forEach(elBtn => {
-        elBtn.onmousedown = elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
-        elBtn.onmouseup = elBtn.ontouchend = clearArrowInterval;
-        // elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
-        // elBtn.ontouchend = clearArrowInterval;
+        // elBtn.onmousedown = elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
+        // elBtn.onmouseup = elBtn.ontouchend = clearArrowInterval;
+        elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
+        elBtn.ontouchend = clearArrowInterval;
     })
 
     document.querySelector(parentSelector).appendChild(el);
