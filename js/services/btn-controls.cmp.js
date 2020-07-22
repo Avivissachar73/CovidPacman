@@ -33,7 +33,7 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
                 cbFunc({key});
             }, speed);
             state.arrowsTimeOut = null;
-        }, 1500);
+        }, 2500);
     }; const clearArrowInterval = () => {
         clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
         clearInterval(state.arrowsInterval);state.arrowsInterval = null;
