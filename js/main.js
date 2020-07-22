@@ -14,7 +14,7 @@ setPrototypes()
 
 const BOARD_SELECTOR = '#board';
 
-const WELCOME_MSG = '!Hello!<br/>do you think you can collect all the foods in the market without being infected by any of the other costumers?<br/>Lets play!';
+const WELCOME_MSG = '!!Hello!<br/>do you think you can collect all the foods in the market without being infected by any of the other costumers?<br/>Lets play!';
 // const WELCOME_MSG = 'Lets play Pacman!';
 var PAUSE_MSG = '';
 
