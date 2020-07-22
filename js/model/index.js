@@ -168,7 +168,16 @@ function moveObj(obj, toPos) {
 function moveEnemies() {
     var {enemies} = gState;
     for (let enemy of enemies) {
-        const posDiffs = {i:getRandomInt(-1,1), j:getRandomInt(-1,1)};
+        // const posDiffs = {i:getRandomInt(-1,1), j:getRandomInt(-1,1)};
+        const posDiffs = (() => {
+            var rand = getRandomInt(1,4);
+            switch (rand) {
+                case 1: return {i:0,j:1};
+                case 2: return {i:0,j:-1};
+                case 3: return {i:1,j:0};
+                case 4: return {i:-1,j:0};
+            }
+        })();
         const newPos = {i: enemy.pos.i+posDiffs.i, j:enemy.pos.j+posDiffs.j};
         if (getIsEnemyInitPos(newPos)) continue;
         moveObj(enemy, newPos);
