@@ -16,8 +16,16 @@ export default function connectEvents() {
     });
     EventManager.on('move-player', posDiffs => {
         const {i : diffI, j : diffJ} = posDiffs;
-        var {player} = gState;
-        moveObj(player, {i:player.pos.i+diffI, j:player.pos.j+diffJ});
+        // var {player} = gState;
+        // gState.playerDirection = (() => {
+        //     if (i === -1 && j === 0) return 'UP';
+        //     if (i === 1 && j === 0) return 'DOWN';
+        //     if (i === 0 && j === 1) return 'RIGHT';
+        //     if (i === 0 && j === -1) return 'LEFT';
+        // })();
+        gState.playerMoveDiff = posDiffs
+        if (!gState.playerInterval) gState.playerInterval = setInterval(movePlayer, 100);
+        // moveObj(player, {i:player.pos.i+diffI, j:player.pos.j+diffJ});
     });
     EventManager.on('pause-game', pauseGame);
     EventManager.on('resurm-game', startGame);
@@ -42,8 +50,11 @@ async function setState() {
         board: boardRes.board,
         score: 0,
         enemies: boardRes.enemies,
-        player: boardRes.player,
         enemiesInterval: null,
+        player: boardRes.player,
+        playerInterval: null,
+        playerDirection: '',
+        playerMoveDiff: null,
         isGameOn: false,
         isGameOver: false,
         isSuperMode: false,
@@ -71,6 +82,7 @@ function clearIntervals() {
     if (!gState) return;
     clearInterval(gState.enemiesInterval);
     clearInterval(gState.chrryInterval);
+    clearInterval(gState.playerInterval);
 }
 async function doGameOver(isVictory = false) {
     pauseGame();
@@ -193,3 +205,10 @@ function checkVictory() {
     }
 }
 
+
+function movePlayer() {
+    var {player} = gState;
+    var diff = gState.playerMoveDiff;
+    if (!diff) return;
+    moveObj(player, {i:player.pos.i+diff.i, j:player.pos.j+diff.j});
+}

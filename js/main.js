@@ -25,7 +25,7 @@ document.body.onload = async () => {
     connectModel();
     connectEvents();
     setDomMethods();
-    createBtnsController(handleKeyPress, 100, 'main');
+    createBtnsController(handleKeyPress, null, 'main');
     init(false);
     // setReSizeBoard();
     if (await Confirm(WELCOME_MSG)) {
@@ -70,7 +70,7 @@ function init(isStart) {
 function connectEvents() {
     EventManager.on('game-setted', (board, bestScore) => {
         renderBoard(board);
-        PAUSE_MSG = bestScore ? `Game paused <br/> Best score: ${bestScore.name}: ${bestScore.score}` : 'Game paused';
+        PAUSE_MSG = bestScore ? `Game paused <br/><br/> Best score: ${bestScore.score} by - ${bestScore.name}` : 'Game paused';
         // reSizeBoard();
     });
     EventManager.on('object-moved', (fromPos, toPos, board) => {
