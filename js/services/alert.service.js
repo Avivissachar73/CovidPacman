@@ -87,6 +87,7 @@ export default class A_Alert {
                                                                                 this._alertResolveUndefined ;
                                                                     } catch(err) {}
         try {elAlert.querySelector('.a-alert-confirm-btn').onclick = this._alertResolveTrue;} catch(err) {}
+        try {elAlert.querySelectorAll('button')[0].focus()}catch(e){}
     }
     
     _hide = (prmCbFunc, val = undefined) => {

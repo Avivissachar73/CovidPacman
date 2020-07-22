@@ -72,6 +72,7 @@ function startGame() {
     gState.isGameOn = true;
     gState.enemiesInterval = setInterval(moveEnemies ,500);
     gState.chrryInterval = setInterval(() => spreadCherry(gState.board) ,5000);
+    gState.playerInterval = setInterval(movePlayer, 100);
 }
 function pauseGame() {
     if (!gState.isGameOn) return;

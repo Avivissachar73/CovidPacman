@@ -57,10 +57,11 @@ function handleKeyPress(event) {
     if (event.preventDefault && (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'ArrowUp' || key === 'ArrowDown')) {
         event.preventDefault();
     }
-    if (event.key === 'ArrowLeft') EventManager.emit('move-player', {i:0,j:-1});
-    if (event.key === 'ArrowRight') EventManager.emit('move-player', {i:0,j:1});
-    if (event.key === 'ArrowUp') EventManager.emit('move-player', {i:-1,j:0});
-    if (event.key === 'ArrowDown') EventManager.emit('move-player', {i:1,j:0});
+    if (key === 'ArrowLeft') EventManager.emit('move-player', {i:0,j:-1});
+    if (key === 'ArrowRight') EventManager.emit('move-player', {i:0,j:1});
+    if (key === 'ArrowUp') EventManager.emit('move-player', {i:-1,j:0});
+    if (key === 'ArrowDown') EventManager.emit('move-player', {i:1,j:0});
+    if (key === 'Escape') pauseGame();
 }
 
 function init(isStart) {
