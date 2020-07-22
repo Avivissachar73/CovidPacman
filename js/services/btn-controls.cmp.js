@@ -33,7 +33,7 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
                 cbFunc({key});
             }, speed);
             state.arrowsTimeOut = null;
-        }, 2500);
+        }, 750);
     }; const clearArrowInterval = () => {
         clearTimeout(state.arrowsTimeOut);state.arrowsTimeOut = null;
         clearInterval(state.arrowsInterval);state.arrowsInterval = null;
@@ -53,8 +53,10 @@ export default function createBtnsController(cbFunc, speed = 100, parentSelector
     el = el.firstChild;
     
     el.querySelectorAll('.arrow-btn').forEach(elBtn => {
-        elBtn.onmousedown = elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
-        elBtn.onmouseup = elBtn.ontouchend = clearArrowInterval;
+        // elBtn.onmousedown = elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
+        // elBtn.onmouseup = elBtn.ontouchend = clearArrowInterval;
+        elBtn.ontouchstart = () => pressArowBtn(elBtn.value);
+        elBtn.ontouchend = clearArrowInterval;
     })
 
     document.querySelector(parentSelector).appendChild(el);

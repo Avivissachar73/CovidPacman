@@ -25,7 +25,7 @@ document.body.onload = async () => {
     connectModel();
     connectEvents();
     setDomMethods();
-    createBtnsController(handleKeyPress, undefined, 'main');
+    createBtnsController(handleKeyPress, 100, 'main');
     init(false);
     // setReSizeBoard();
     if (await Confirm(WELCOME_MSG)) {
