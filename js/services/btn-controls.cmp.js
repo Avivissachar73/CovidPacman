@@ -114,7 +114,8 @@ function _getDefaultStyle() {
                 .mobile-controllers .arrow-btns {
                     display: grid;
                     grid-template-rows: repeat(3, 40px);
-                    grid-template-columns:  repeat(3, 40px);
+                    grid-template-columns: repeat(3, 40px);
+                    column-gap: 25px;
                 }
                 .mobile-controllers .arrow-btns >* {
                     background: none;

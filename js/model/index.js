@@ -24,7 +24,7 @@ export default function connectEvents() {
         //     if (i === 0 && j === -1) return 'LEFT';
         // })();
         gState.playerMoveDiff = posDiffs
-        if (!gState.playerInterval) gState.playerInterval = setInterval(movePlayer, 100);
+        // if (!gState.playerInterval) gState.playerInterval = setInterval(movePlayer, 100);
         // moveObj(player, {i:player.pos.i+diffI, j:player.pos.j+diffJ});
     });
     EventManager.on('pause-game', pauseGame);
@@ -72,7 +72,7 @@ function startGame() {
     gState.isGameOn = true;
     gState.enemiesInterval = setInterval(moveEnemies ,500);
     gState.chrryInterval = setInterval(() => spreadCherry(gState.board) ,5000);
-    gState.playerInterval = setInterval(movePlayer, 100);
+    gState.playerInterval = setInterval(movePlayer, 200);
 }
 function pauseGame() {
     if (!gState.isGameOn) return;
